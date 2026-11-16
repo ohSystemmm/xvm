@@ -1,57 +1,63 @@
-# xvm C++ build - ohSystemmm 2026
-
 PROJECT_NAME = xvm
 CONFIG = debug
-CXX ?= g++
-BUILD_ROOT = build
-BUILD_DIR := $(BUILD_ROOT)/$(CONFIG)
-OBJ_DIR := $(BUILD_DIR)/obj
+BUILD_ROOT = build-mingw
+BUILD_DIR = $(BUILD_ROOT)/$(CONFIG)
+CMAKE = cmake
+CXX = g++
+CMAKE_GENERATOR = MinGW Makefiles
+CMAKE_MAKE_PROGRAM = $(MAKE)
 
-EXE_EXT = .exe
-RUN_PREFIX :=
-MKDIR_P = if not exist "$@" mkdir "$@"
-REMOVE_DIR = if exist "$(1)" rmdir /s /q "$(1)"
+VCPKG_TARGET_TRIPLET = x64-mingw-dynamic
+VCPKG_HOST_TRIPLET = $(VCPKG_TARGET_TRIPLET)
+
+ifeq ($(strip $(VCPKG_ROOT)),)
+  ifneq ($(wildcard ../vcpkg/vcpkg.exe),)
+    VCPKG_ROOT := $(abspath ../vcpkg)
+  else ifneq ($(wildcard C:/Users/leonh/HolyMoly/003_Work/Work/Projects/vcpkg/vcpkg.exe),)
+    VCPKG_ROOT := C:/Users/leonh/HolyMoly/003_Work/Work/Projects/vcpkg
+  endif
+endif
+
+VCPKG_OVERLAY_TRIPLETS = $(VCPKG_ROOT)/triplets/community
 
 ifeq ($(filter $(CONFIG),debug release),)
 $(error CONFIG must be either 'debug' or 'release' (got '$(CONFIG)'))
 endif
 
-SOURCES := $(wildcard src/*.cpp)
-ifeq ($(strip $(SOURCES)),)
-$(error No C++ source files found in src/)
+ifeq ($(strip $(VCPKG_ROOT)),)
+$(error Set VCPKG_ROOT to your vcpkg installation directory or clone vcpkg to ../vcpkg)
 endif
 
-OBJECTS := $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
-DEPS := $(OBJECTS:.o=.d)
-TARGET = $(BUILD_DIR)/$(PROJECT_NAME)$(EXE_EXT)
+ifeq ($(strip $(VCPKG_OVERLAY_TRIPLETS)),)
+$(error VCPKG_OVERLAY_TRIPLETS must point to the vcpkg community triplets directory)
+endif
 
-CXXFLAGS += -std=c++17 -Wall -Wextra -Wpedantic
 ifeq ($(CONFIG),debug)
-CXXFLAGS += -O0 -g
+CMAKE_CONFIG = Debug
 else
-CXXFLAGS += -O2 -DNDEBUG
+CMAKE_CONFIG = Release
 endif
 
 .DEFAULT_GOAL := build
-.PHONY: build run debug release clean info help
+.PHONY: all configure build run debug release clean info help
 
-build: $(TARGET)
-	@echo Built $(TARGET)
+all: build
 
-$(TARGET): $(OBJECTS) | $(BUILD_DIR)
-	$(CXX) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o "$@"
+configure:
+	"$(CMAKE)" -S . -B "$(BUILD_DIR)" -G "$(CMAKE_GENERATOR)" \
+		-DCMAKE_CXX_COMPILER="$(CXX)" \
+		-DCMAKE_BUILD_TYPE=$(CMAKE_CONFIG) \
+		-DCMAKE_MAKE_PROGRAM="$(CMAKE_MAKE_PROGRAM)" \
+		-DCMAKE_TOOLCHAIN_FILE="$(VCPKG_ROOT)/scripts/buildsystems/vcpkg.cmake" \
+		-DVCPKG_TARGET_TRIPLET=$(VCPKG_TARGET_TRIPLET) \
+		-DVCPKG_HOST_TRIPLET=$(VCPKG_HOST_TRIPLET) \
+		-DVCPKG_OVERLAY_TRIPLETS="$(VCPKG_OVERLAY_TRIPLETS)"
 
-$(OBJ_DIR)/%.o: src/%.cpp | $(OBJ_DIR)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -MP -MF "$(@:.o=.d)" -c "$<" -o "$@"
+build: configure
+	"$(CMAKE)" --build "$(BUILD_DIR)" --config $(CMAKE_CONFIG)
 
-$(BUILD_DIR):
-	$(MKDIR_P)
-
-$(OBJ_DIR): | $(BUILD_DIR)
-	$(MKDIR_P)
-
-run: $(TARGET)
-	$(RUN_PREFIX)"$(TARGET)"
+run: build
+	"$(BUILD_DIR)/$(PROJECT_NAME).exe"
 
 debug:
 	$(MAKE) CONFIG=debug build
@@ -60,26 +66,28 @@ release:
 	$(MAKE) CONFIG=release build
 
 clean:
-	$(call REMOVE_DIR,$(BUILD_ROOT))
+	"$(CMAKE)" -E rm -rf "$(BUILD_ROOT)"
 
 info:
-	@echo Project:    $(PROJECT_NAME)
-	@echo Compiler:   $(CXX)
-	@echo Config:     $(CONFIG)
-	@echo Target:     $(TARGET)
-	@echo Sources:    $(SOURCES)
+	@echo Project:        $(PROJECT_NAME)
+	@echo Compiler:       $(CXX)
+	@echo Config:         $(CONFIG)
+	@echo Build dir:      $(BUILD_DIR)
+	@echo Generator:      $(CMAKE_GENERATOR)
+	@echo Make program:   $(CMAKE_MAKE_PROGRAM)
+	@echo Target Triplet: $(VCPKG_TARGET_TRIPLET)
+	@echo Host Triplet:   $(VCPKG_HOST_TRIPLET)
+	@echo vcpkg root:     $(VCPKG_ROOT)
 
 help:
 	@echo "xvm build targets:"
-	@echo "  build            Build the selected configuration (default: debug)"
+	@echo "  build            Configure with vcpkg and build (default: debug)"
 	@echo "  run              Build and run the selected configuration"
-	@echo "  debug            Build with debug symbols and no optimization"
+	@echo "  debug            Build with debug settings"
 	@echo "  release          Build optimized release output"
-	@echo "  clean            Remove output for the selected configuration"
+	@echo "  clean            Remove generated build directories"
 	@echo "  info             Show the active build configuration"
 	@echo "  help             Show available build targets"
 	@echo
-	@echo "Variables: CXX, CONFIG=debug^|release, BUILD_ROOT, PROJECT_NAME,"
-	@echo "           CPPFLAGS, CXXFLAGS, LDFLAGS, LDLIBS"
-
--include $(DEPS)
+	@echo "Variables: CXX, CONFIG=debug^|release, BUILD_ROOT, CMAKE,"
+	@echo "           VCPKG_ROOT, VCPKG_TARGET_TRIPLET, VCPKG_HOST_TRIPLET, VCPKG_OVERLAY_TRIPLETS"
