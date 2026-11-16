@@ -68,6 +68,9 @@ vcpkg_installed/
 Testing/
 .cache/
 
+# Runtime log output
+logs/
+
 # Developer-specific files
 Run.md
 Task.md
