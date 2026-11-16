@@ -7,6 +7,11 @@ CXX = g++
 CMAKE_GENERATOR = MinGW Makefiles
 CMAKE_MAKE_PROGRAM = $(MAKE)
 
+# Logging mode: set LOG_MODE=file on the command line to enable file logging.
+#   make run                   -> stdout-only logging
+#   make run LOG_MODE=file     -> stdout + file logging (logs/xvm.log)
+LOG_MODE = stdout
+
 VCPKG_TARGET_TRIPLET = x64-mingw-dynamic
 VCPKG_HOST_TRIPLET = $(VCPKG_TARGET_TRIPLET)
 
@@ -38,6 +43,12 @@ else
 CMAKE_CONFIG = Release
 endif
 
+ifeq ($(LOG_MODE),file)
+CMAKE_LOG_FLAG = -DXVM_LOG_TO_FILE=ON
+else
+CMAKE_LOG_FLAG = -DXVM_LOG_TO_FILE=OFF
+endif
+
 .DEFAULT_GOAL := build
 .PHONY: all configure build run debug release clean info help
 
@@ -51,7 +62,8 @@ configure:
 		-DCMAKE_TOOLCHAIN_FILE="$(VCPKG_ROOT)/scripts/buildsystems/vcpkg.cmake" \
 		-DVCPKG_TARGET_TRIPLET=$(VCPKG_TARGET_TRIPLET) \
 		-DVCPKG_HOST_TRIPLET=$(VCPKG_HOST_TRIPLET) \
-		-DVCPKG_OVERLAY_TRIPLETS="$(VCPKG_OVERLAY_TRIPLETS)"
+		-DVCPKG_OVERLAY_TRIPLETS="$(VCPKG_OVERLAY_TRIPLETS)" \
+		$(CMAKE_LOG_FLAG)
 
 build: configure
 	"$(CMAKE)" --build "$(BUILD_DIR)" --config $(CMAKE_CONFIG)
@@ -78,6 +90,7 @@ info:
 	@echo Target Triplet: $(VCPKG_TARGET_TRIPLET)
 	@echo Host Triplet:   $(VCPKG_HOST_TRIPLET)
 	@echo vcpkg root:     $(VCPKG_ROOT)
+	@echo Log mode:       $(LOG_MODE)
 
 help:
 	@echo "xvm build targets:"
@@ -89,5 +102,6 @@ help:
 	@echo "  info             Show the active build configuration"
 	@echo "  help             Show available build targets"
 	@echo
-	@echo "Variables: CXX, CONFIG=debug^|release, BUILD_ROOT, CMAKE,"
-	@echo "           VCPKG_ROOT, VCPKG_TARGET_TRIPLET, VCPKG_HOST_TRIPLET, VCPKG_OVERLAY_TRIPLETS"
+	@echo "Variables: CXX, CONFIG=debug|release, BUILD_ROOT, CMAKE,"
+	@echo "           VCPKG_ROOT, VCPKG_TARGET_TRIPLET, VCPKG_HOST_TRIPLET,"
+	@echo "           VCPKG_OVERLAY_TRIPLETS, LOG_MODE=stdout|file"
