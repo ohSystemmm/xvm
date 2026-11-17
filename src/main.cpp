@@ -1,13 +1,33 @@
 #include "log/logger.hpp"
 #include "render/renderer.hpp"
+#include "vm/assembler.hpp"
+#include "vm/virtual_machine.hpp"
 
 #include <SDL3/SDL.h>
 #include <iostream>
+#include <string>
 
-int main() {
-    std::cout << "XVM" << std::endl;
+int main(int argc, char* argv[]) {
+    std::cout << "Starting XVM Virtual Machine..." << std::endl;
 
     xvm::initLogger();
+
+    xvm::VirtualMachine vm;
+
+    if (argc > 1) {
+        const std::string romPath = argv[1];
+        if (!vm.loadRom(romPath)) {
+            std::cerr << "Failed to load ROM: " << romPath << std::endl;
+            return 1;
+        }
+    } else {
+        // Load demo ROM
+        auto demoRom = xvm::createDefaultDemoRom();
+        if (!vm.loadRom(demoRom)) {
+            std::cerr << "Failed to load built-in demo ROM" << std::endl;
+            return 1;
+        }
+    }
 
     xvm::Renderer renderer;
     if (!renderer.init()) {
@@ -16,17 +36,55 @@ int main() {
 
     bool running = true;
     SDL_Event event{};
+    auto& clock = vm.getClock();
+    clock.start();
 
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
+            } else if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
+                const bool pressed = (event.type == SDL_EVENT_KEY_DOWN);
+                switch (event.key.key) {
+                    case SDLK_UP:
+                    case SDLK_W:
+                        vm.setButtonState(xvm::buttons::UP, pressed);
+                        break;
+                    case SDLK_DOWN:
+                    case SDLK_S:
+                        vm.setButtonState(xvm::buttons::DOWN, pressed);
+                        break;
+                    case SDLK_LEFT:
+                    case SDLK_A:
+                        vm.setButtonState(xvm::buttons::LEFT, pressed);
+                        break;
+                    case SDLK_RIGHT:
+                    case SDLK_D:
+                        vm.setButtonState(xvm::buttons::RIGHT, pressed);
+                        break;
+                    case SDLK_SPACE:
+                    case SDLK_RETURN:
+                        vm.setButtonState(xvm::buttons::ACTION, pressed);
+                        break;
+                    case SDLK_ESCAPE:
+                        running = false;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
-        renderer.clear();
-        renderer.present();
-        SDL_Delay(16);
+        clock.tick();
+
+        // Run batch of virtual CPU instructions per frame (500 instructions per frame)
+        vm.runFrame(500);
+
+        // Render virtual framebuffer to window
+        renderer.render(vm.getFramebuffer());
+
+        // Lock frame rate to 60 FPS
+        clock.limitFrameRate(60);
     }
 
     return 0;

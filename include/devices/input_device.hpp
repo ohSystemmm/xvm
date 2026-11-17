@@ -13,18 +13,18 @@ namespace xvm {
     }
 
     class InputDevice {
-    public:
-        InputDevice();
-        ~InputDevice();
+        public:
+            InputDevice();
+            ~InputDevice();
 
-        void setButtonState(uint8_t buttonFlag, bool pressed);
-        uint8_t readInput() const;
+            void setButtonState(uint8_t buttonFlag, bool pressed);
+            uint8_t readInput() const;
 
-        void reset();
+            void reset();
 
-    private:
-        uint8_t m_currentKeyState = 0;
-    };
+        private:
+            uint8_t m_currentKeyState = 0;
+        };
 }
 
 #endif

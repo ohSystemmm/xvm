@@ -16,8 +16,8 @@ namespace xvm {
 
     private:
         std::chrono::high_resolution_clock::time_point m_lastTime;
-        double m_deltaTime;
-        const double m_targetFrameTime = 1.0 / 60.0; // 60 FPS limite
+        double m_deltaTime = 0.0;
+        const double m_targetFrameTime = 1.0 / 60.0; // 60 FPS limit
     };
 }
 

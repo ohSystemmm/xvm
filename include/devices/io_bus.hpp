@@ -8,18 +8,21 @@
 
 namespace xvm {
     class IoBus {
-    public:
-        IoBus(Ram& ram, InputDevice& inputDevice);
-        ~IoBus();
+        public:
+            IoBus(Ram& ram, InputDevice& inputDevice);
+            ~IoBus();
 
-        // Zentrale Lese- und Schreibmethoden für die CPU
-        std::uint8_t read8(std::uint16_t address) const;
-        void write8(std::uint16_t address, std::uint8_t value);
+            std::uint8_t read8(std::uint16_t address) const;
+            void write8(std::uint16_t address, std::uint8_t value);
 
-    private:
-        Ram& m_ram;
-        InputDevice& m_inputDevice;
-    };
+            void setRomWriteProtected(bool protectedRom);
+            bool isRomWriteProtected() const;
+
+        private:
+            Ram& m_ram;
+            InputDevice& m_inputDevice;
+            bool m_romWriteProtected = false;
+        };
 }
 
 #endif

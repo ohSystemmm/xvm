@@ -74,6 +74,7 @@ logs/
 # Developer-specific files
 Run.md
 Task.md
+Notes.md
 tasks.json
 
 # IDE

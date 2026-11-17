@@ -6,23 +6,26 @@
 
 namespace xvm {
     class Framebuffer {
-    public:
-        Framebuffer(int width, int height);
-        ~Framebuffer();
+        public:
+            static constexpr int kDefaultWidth = 64;
+            static constexpr int kDefaultHeight = 64;
 
-        void clear(uint32_t color);
-        void setPixel(int x, int y, uint32_t color);
-        uint32_t getPixel(int x, int y) const;
-        const uint32_t* getBuffer() const;
+            Framebuffer(int width = kDefaultWidth, int height = kDefaultHeight);
+            ~Framebuffer();
 
-        int getWidth() const;
-        int getHeight() const;
+            void clear(uint32_t color = 0xFF000000);
+            void setPixel(int x, int y, uint32_t color);
+            uint32_t getPixel(int x, int y) const;
+            
+            const uint32_t* getBuffer() const;
+            int getWidth() const;
+            int getHeight() const;
 
-    private:
-        std::vector<uint32_t> m_pixels;
-        int m_width;
-        int m_height;
-    };
+        private:
+            int m_width;
+            int m_height;
+            std::vector<uint32_t> m_pixels;
+        };
 }
 
 #endif
