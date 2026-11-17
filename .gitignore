@@ -75,3 +75,6 @@ logs/
 Run.md
 Task.md
 tasks.json
+
+# IDE
+.vscode/
