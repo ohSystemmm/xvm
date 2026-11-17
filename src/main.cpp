@@ -2,6 +2,7 @@
 #include "render/renderer.hpp"
 #include "vm/assembler.hpp"
 #include "vm/virtual_machine.hpp"
+#include "vm/rom.hpp"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]) {
         }
     } else {
         // Load demo ROM
-        auto demoRom = xvm::createDefaultDemoRom();
+        auto demoRom = xvm::createRom();
         if (!vm.loadRom(demoRom)) {
             std::cerr << "Failed to load built-in demo ROM" << std::endl;
             return 1;

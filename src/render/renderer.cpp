@@ -27,20 +27,25 @@ namespace xvm {
             return false;
         }
 
-        // Display bounds
-        SDL_Rect usable{};
-        if (!SDL_GetDisplayUsableBounds(primary, &usable)) {
-            spdlog::error("SDL_GetDisplayUsableBounds failed: {}", SDL_GetError());
-            SDL_Quit();
-            return false;
-        }
+        // Fullscreen window
+        // SDL_Rect usable{};
+        // if (!SDL_GetDisplayUsableBounds(primary, &usable)) {
+        //     spdlog::error("SDL_GetDisplayUsableBounds failed: {}", SDL_GetError());
+        //     SDL_Quit();
+        //     return false;
+        // }
 
-        m_width  = usable.w;
-        m_height = usable.h;
-        spdlog::info("Primary display usable area: {}x{}", m_width, m_height);
+        // m_width  = usable.w;
+        // m_height = usable.h;
+        // spdlog::info("Primary display usable area: {}x{}", m_width, m_height);
 
-        // Window
-        m_window = SDL_CreateWindow("xvm", m_width, m_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+        // m_window = SDL_CreateWindow("xvm", m_width, m_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+
+        // Square window
+        m_width  = 1024;
+        m_height = 1024;
+        
+        m_window = SDL_CreateWindow("xvm", m_width, m_height, !SDL_WINDOW_RESIZABLE);  
         if (!m_window) {
             spdlog::error("SDL_CreateWindow failed: {}", SDL_GetError());
             SDL_Quit();

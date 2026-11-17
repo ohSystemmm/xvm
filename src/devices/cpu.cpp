@@ -30,11 +30,8 @@ namespace xvm {
             if (index < 16) {
                 return kPalette[index];
             }
-            // Fallback for values > 15: convert 8-bit RGB332 to ARGB
-            uint32_t r = (index >> 5) * 36;
-            uint32_t g = ((index >> 2) & 0x07) * 36;
-            uint32_t b = (index & 0x03) * 85;
-            return 0xFF000000 | (r << 16) | (g << 8) | b;
+            spdlog::warn("paletteToRgba: Invalid palette index {}", index);
+            return 0xFF000000; // Default Black
         }
     }
 
@@ -74,7 +71,7 @@ namespace xvm {
         const uint8_t arg3       = m_ioBus.read8(m_programCounter + 3);
 
         const uint16_t currentPc = m_programCounter;
-        m_programCounter += 4; // Advance PC before execution
+        m_programCounter += 4; // Advance ProgramCounter before execution
 
         if (m_trace) {
             spdlog::debug("CPU [PC:0x{:04X}] Op:0x{:02X} Args:[0x{:02X},0x{:02X},0x{:02X}] | R0-R7: [{:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X}] ZF:{}",
@@ -85,14 +82,16 @@ namespace xvm {
         }
 
         switch (static_cast<Opcode>(opcodeByte)) {
-            case Opcode::NOP:
+            case Opcode::NOP: {
                 break;
+            }
 
-            case Opcode::LOAD_IMM:
+            case Opcode::LOAD_IMM: {
                 if (arg1 < 8) {
                     m_registers[arg1] = arg2;
                 }
                 break;
+            }
 
             case Opcode::LOAD_MEM: {
                 const uint16_t addr = (static_cast<uint16_t>(arg2) << 8) | arg3;
@@ -110,33 +109,37 @@ namespace xvm {
                 break;
             }
 
-            case Opcode::COPY_REG:
+            case Opcode::COPY_REG: {
                 if (arg1 < 8 && arg2 < 8) {
                     m_registers[arg1] = m_registers[arg2];
                 }
                 break;
+            }
 
-            case Opcode::ADD:
+            case Opcode::ADD: {
                 if (arg1 < 8 && arg2 < 8) {
                     const uint16_t res = static_cast<uint16_t>(m_registers[arg1]) + m_registers[arg2];
                     m_registers[arg1] = static_cast<uint8_t>(res & 0xFF);
                     m_zeroflags = (m_registers[arg1] == 0) ? 1 : 0;
                 }
                 break;
+            }
 
-            case Opcode::SUB:
+            case Opcode::SUB: {
                 if (arg1 < 8 && arg2 < 8) {
                     const int16_t res = static_cast<int16_t>(m_registers[arg1]) - m_registers[arg2];
                     m_registers[arg1] = static_cast<uint8_t>(res & 0xFF);
                     m_zeroflags = (m_registers[arg1] == 0) ? 1 : 0;
                 }
                 break;
+            }
 
-            case Opcode::CMP:
+            case Opcode::CMP: {
                 if (arg1 < 8 && arg2 < 8) {
                     m_zeroflags = (m_registers[arg1] == m_registers[arg2]) ? 1 : 0;
                 }
                 break;
+            }
 
             case Opcode::JUMP: {
                 const uint16_t addr = (static_cast<uint16_t>(arg2) << 8) | arg3;
@@ -160,44 +163,50 @@ namespace xvm {
                 break;
             }
 
-            case Opcode::CLEAR_SCREEN:
+            case Opcode::CLEAR_SCREEN: {
                 if (m_framebuffer) {
                     const uint8_t colorIdx = (arg1 < 8) ? m_registers[arg1] : arg1;
                     m_framebuffer->clear(paletteToRgba(colorIdx));
                 }
                 break;
+            }
 
-            case Opcode::DRAW_PIXEL:
+            case Opcode::DRAW_PIXEL: {
                 if (m_framebuffer && arg1 < 8 && arg2 < 8) {
                     const uint8_t colorIdx = (arg3 < 8) ? m_registers[arg3] : arg3;
                     m_framebuffer->setPixel(m_registers[arg1], m_registers[arg2], paletteToRgba(colorIdx));
                 }
                 break;
+            }
 
-            case Opcode::HALT:
+            case Opcode::HALT: {
                 m_halted = true;
                 break;
+            }
 
-            case Opcode::AND:
+            case Opcode::AND: {
                 if (arg1 < 8 && arg2 < 8) {
                     m_registers[arg1] &= m_registers[arg2];
                     m_zeroflags = (m_registers[arg1] == 0) ? 1 : 0;
                 }
                 break;
+            }
 
-            case Opcode::OR:
+            case Opcode::OR: {
                 if (arg1 < 8 && arg2 < 8) {
                     m_registers[arg1] |= m_registers[arg2];
                     m_zeroflags = (m_registers[arg1] == 0) ? 1 : 0;
                 }
                 break;
+            }
 
-            default:
+            default: {
                 spdlog::warn("Cpu::step: Unknown opcode 0x{:02X} at PC 0x{:04X}", opcodeByte, currentPc);
                 break;
+            }
         }
     }
-
+    
     void Cpu::setFramebuffer(Framebuffer* framebuffer) {
         m_framebuffer = framebuffer;
     }
