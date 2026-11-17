@@ -12,6 +12,14 @@ find_package(spdlog CONFIG REQUIRED)
 
 add_executable(xvm
     src/main.cpp
+    src/devices/cpu.cpp
+    src/devices/framebuffer.cpp
+    src/devices/input_device.cpp
+    src/devices/io_bus.cpp
+    src/devices/memory_map.cpp
+    src/devices/ram.cpp
+    src/devices/system_clock.cpp
+    src/vm/virtual_machine.cpp
     src/render/renderer.cpp
     src/log/logger.cpp
 )

@@ -1,7 +1,10 @@
 #include "render/renderer.hpp"
+#include "devices/framebuffer.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <algorithm>
+#include <cmath>
 #include <spdlog/spdlog.h>
 
 namespace xvm {
@@ -24,7 +27,7 @@ namespace xvm {
             return false;
         }
 
-        // fullscreen
+        // Display bounds
         SDL_Rect usable{};
         if (!SDL_GetDisplayUsableBounds(primary, &usable)) {
             spdlog::error("SDL_GetDisplayUsableBounds failed: {}", SDL_GetError());
@@ -36,24 +39,24 @@ namespace xvm {
         m_height = usable.h;
         spdlog::info("Primary display usable area: {}x{}", m_width, m_height);
 
-        // titlebar
-        m_window = SDL_CreateWindow("xvm", m_width, m_height,SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+        // Window
+        m_window = SDL_CreateWindow("xvm", m_width, m_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
         if (!m_window) {
             spdlog::error("SDL_CreateWindow failed: {}", SDL_GetError());
             SDL_Quit();
             return false;
         }
 
-        // appicon
+        // App icon
         SDL_Surface* iconSurface = IMG_Load("assets/icon.png");
         if (!iconSurface) {
-            spdlog::error("Failed to load icon image: {}", SDL_GetError());
+            spdlog::warn("Failed to load icon image: {}", SDL_GetError());
         } else {
             if (!SDL_SetWindowIcon(m_window, iconSurface)) {
-                spdlog::error("Failed to set window icon: {}", SDL_GetError());
+                spdlog::warn("Failed to set window icon: {}", SDL_GetError());
             }
+            SDL_DestroySurface(iconSurface);
         }
-        SDL_DestroySurface(iconSurface);
 
         m_renderer = SDL_CreateRenderer(m_window, nullptr);
         if (!m_renderer) {
@@ -69,6 +72,10 @@ namespace xvm {
     }
 
     void Renderer::shutdown() {
+        if (m_texture) {
+            SDL_DestroyTexture(m_texture);
+            m_texture = nullptr;
+        }
         if (m_renderer) {
             SDL_DestroyRenderer(m_renderer);
             m_renderer = nullptr;
@@ -82,11 +89,62 @@ namespace xvm {
     }
 
     void Renderer::clear() {
-        SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
-        SDL_RenderClear(m_renderer);
+        if (m_renderer) {
+            SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+            SDL_RenderClear(m_renderer);
+        }
     }
 
     void Renderer::present() {
+        if (m_renderer) {
+            SDL_RenderPresent(m_renderer);
+        }
+    }
+
+    void Renderer::render(const Framebuffer& framebuffer) {
+        if (!m_renderer) {
+            return;
+        }
+
+        const int fbW = framebuffer.getWidth();
+        const int fbH = framebuffer.getHeight();
+
+        if (!m_texture || m_texWidth != fbW || m_texHeight != fbH) {
+            if (m_texture) {
+                SDL_DestroyTexture(m_texture);
+                m_texture = nullptr;
+            }
+            m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, fbW, fbH);
+            if (!m_texture) {
+                spdlog::error("SDL_CreateTexture failed: {}", SDL_GetError());
+                return;
+            }
+            SDL_SetTextureScaleMode(m_texture, SDL_SCALEMODE_NEAREST);
+            m_texWidth = fbW;
+            m_texHeight = fbH;
+        }
+
+        SDL_UpdateTexture(m_texture, nullptr, framebuffer.getBuffer(), fbW * sizeof(uint32_t));
+
+        SDL_SetRenderDrawColor(m_renderer, 16, 16, 16, 255);
+        SDL_RenderClear(m_renderer);
+
+        int windowW = 0;
+        int windowH = 0;
+        SDL_GetWindowSize(m_window, &windowW, &windowH);
+
+        float scale = std::floor(std::min(static_cast<float>(windowW) / fbW, static_cast<float>(windowH) / fbH));
+        if (scale < 1.0f) {
+            scale = 1.0f;
+        }
+
+        const float dstW = static_cast<float>(fbW) * scale;
+        const float dstH = static_cast<float>(fbH) * scale;
+        const float dstX = (static_cast<float>(windowW) - dstW) / 2.0f;
+        const float dstY = (static_cast<float>(windowH) - dstH) / 2.0f;
+
+        const SDL_FRect dstRect{dstX, dstY, dstW, dstH};
+        SDL_RenderTexture(m_renderer, m_texture, nullptr, &dstRect);
         SDL_RenderPresent(m_renderer);
     }
 }

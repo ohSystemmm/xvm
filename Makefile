@@ -1,6 +1,6 @@
 PROJECT_NAME = xvm
 CONFIG = debug
-BUILD_ROOT = build-mingw
+BUILD_ROOT = build
 BUILD_DIR = $(BUILD_ROOT)/$(CONFIG)
 CMAKE = cmake
 CXX = g++
