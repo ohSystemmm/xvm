@@ -12,6 +12,7 @@ find_package(spdlog CONFIG REQUIRED)
 
 add_executable(xvm
     src/main.cpp
+    src/devices/ram.cpp
     src/render/renderer.cpp
     src/log/logger.cpp
 )
