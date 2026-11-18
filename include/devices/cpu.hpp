@@ -7,18 +7,13 @@
 #include <cstdint>
 
 namespace xvm {
-    class Framebuffer;
-    
     class Cpu {
         public:
-            explicit Cpu(IoBus& ioBus, Framebuffer* framebuffer = nullptr);
+            explicit Cpu(IoBus& ioBus);
             ~Cpu();
 
             void reset();
             void step();
-
-            void setFramebuffer(Framebuffer* framebuffer);
-            Framebuffer* getFramebuffer() const;
 
             bool isHalted() const;
             void setHalted(bool halted);
@@ -37,7 +32,6 @@ namespace xvm {
 
         private:
             IoBus& m_ioBus;
-            Framebuffer* m_framebuffer = nullptr;
 
             uint8_t m_registers[8]{};      // General purpose registers R0 - R7
             uint16_t m_programCounter = 0; // 16-bit program counter

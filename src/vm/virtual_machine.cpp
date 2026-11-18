@@ -8,9 +8,9 @@ namespace xvm {
     VirtualMachine::VirtualMachine()
         : m_ram(),
           m_inputDevice(),
-          m_ioBus(m_ram, m_inputDevice),
           m_framebuffer(Framebuffer::kDefaultWidth, Framebuffer::kDefaultHeight),
-          m_cpu(m_ioBus, &m_framebuffer),
+          m_ioBus(m_ram, m_inputDevice, &m_framebuffer),
+          m_cpu(m_ioBus),
           m_clock() {
         m_clock.start();
     }
@@ -72,14 +72,11 @@ namespace xvm {
 
         reset();
 
-        // Write ROM to start of RAM
-        m_ram.write(memory_map::ROM_START, romData);
+        m_ram.write(memory_map::ROM_START, romData); // write ROM to start of RAM
 
-        // Protect ROM against runtime writes
-        m_ioBus.setRomWriteProtected(true);
+        m_ioBus.setRomWriteProtected(true); // disable runtime writes
 
-        // Reset CPU to start of ROM
-        m_cpu.setProgramCounter(memory_map::ROM_START);
+        m_cpu.setProgramCounter(memory_map::ROM_START); // reset CPU to start of ROM
         m_cpu.setHalted(false);
 
         spdlog::info("VirtualMachine: Successfully loaded ROM ({} bytes)", romData.size());
@@ -89,7 +86,7 @@ namespace xvm {
     void VirtualMachine::reset() {
         m_ioBus.setRomWriteProtected(false);
         m_ram.reset();
-        m_framebuffer.clear(0xFF000000);
+        m_framebuffer.reset();
         m_inputDevice.reset();
         m_cpu.reset();
         spdlog::info("VirtualMachine: Hardware reset complete");

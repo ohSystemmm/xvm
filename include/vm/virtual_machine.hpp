@@ -57,8 +57,8 @@ namespace xvm {
         private:
             Ram m_ram;
             InputDevice m_inputDevice;
-            IoBus m_ioBus;
             Framebuffer m_framebuffer;
+            IoBus m_ioBus;
             Cpu m_cpu;
             SystemClock m_clock;
     };

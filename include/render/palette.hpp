@@ -5,7 +5,7 @@
 #include <spdlog/spdlog.h>
 
 namespace xvm {
-    uint32_t paletteToRgba(uint8_t index) {
+    inline uint32_t paletteToRgba(uint8_t index) {
         static constexpr uint32_t kPalette[16] = {
             0xFF000000, // 0: Black
             0xFFFFFFFF, // 1: White

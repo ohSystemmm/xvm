@@ -16,8 +16,7 @@ namespace xvm {
         JUMP          = 0x08,
         JUMP_ZERO     = 0x09,
         JUMP_NOT_ZERO = 0x0A,
-        CLEAR_SCREEN  = 0x0B, // Replace with generalized instruction (e.g., PORT_OUT to framebuffer)
-        DRAW_PIXEL    = 0x0C, // Replace with generalized instruction (e.g., PORT_OUT to framebuffer)
+        PORT_OUT      = 0x0B,
         HALT          = 0x0D,
         AND           = 0x0E,
         OR            = 0x0F

@@ -1,8 +1,6 @@
 #include "devices/cpu.hpp"
-#include "devices/framebuffer.hpp"
 #include "devices/memory_map.hpp"
 #include "vm/opcode.hpp"
-#include "render/palette.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -10,9 +8,8 @@
 
 namespace xvm {
 
-    Cpu::Cpu(IoBus& ioBus, Framebuffer* framebuffer)
+    Cpu::Cpu(IoBus& ioBus)
         : m_ioBus(ioBus),
-          m_framebuffer(framebuffer),
           m_programCounter(memory_map::ROM_START),
           m_zeroflags(0),
           m_halted(false),
@@ -138,18 +135,9 @@ namespace xvm {
                 break;
             }
 
-            case Opcode::CLEAR_SCREEN: {
-                if (m_framebuffer) {
-                    const uint8_t colorIdx = (arg1 < 8) ? m_registers[arg1] : arg1;
-                    m_framebuffer->clear(paletteToRgba(colorIdx));
-                }
-                break;
-            }
-
-            case Opcode::DRAW_PIXEL: {
-                if (m_framebuffer && arg1 < 8 && arg2 < 8) {
-                    const uint8_t colorIdx = (arg3 < 8) ? m_registers[arg3] : arg3;
-                    m_framebuffer->setPixel(m_registers[arg1], m_registers[arg2], paletteToRgba(colorIdx));
+            case Opcode::PORT_OUT: {
+                if (arg2 < 8) {
+                    m_ioBus.writePort(arg1, m_registers[arg2]);
                 }
                 break;
             }
@@ -180,14 +168,6 @@ namespace xvm {
                 break;
             }
         }
-    }
-    
-    void Cpu::setFramebuffer(Framebuffer* framebuffer) {
-        m_framebuffer = framebuffer;
-    }
-
-    Framebuffer* Cpu::getFramebuffer() const {
-        return m_framebuffer;
     }
 
     bool Cpu::isHalted() const {
