@@ -21,11 +21,17 @@ namespace xvm {
             int getWidth() const;
             int getHeight() const;
 
+            void writePort(uint8_t port, uint8_t value);
+            uint8_t readPort(uint8_t port) const;
+            void reset();
+
         private:
             int m_width;
             int m_height;
             std::vector<uint32_t> m_pixels;
-        };
+            uint8_t m_curX = 0;
+            uint8_t m_curY = 0;
+    };
 }
 
 #endif

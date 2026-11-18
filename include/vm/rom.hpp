@@ -2,6 +2,7 @@
 #define XVM_DEMO_ROM_HPP
 
 #include "assembler.hpp"
+
 #include <vector>
 #include <cstdint>
 
@@ -9,109 +10,109 @@ namespace xvm {
     const int DISPLAY_WIDTH = 64; 
     const int DISPLAY_HEIGHT = 64; 
 
-    void drawX(Assembler& asmblr, int offsetX, int offsetY) {
+    inline void drawX(Assembler& asmblr, int offsetX, int offsetY) {
         for (int y = 0; y <= 1; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 0);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         for (int y = 0; y <= 1; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 4);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         for (int i = 1; i <= 3; i++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + i);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + i + 1);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 3);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 2);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 1);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 4);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         for (int y = 5; y <= 6; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 0);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         for (int y = 5; y <= 6; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 4);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
     }
 
-    void drawV(Assembler& asmblr, int offsetX, int offsetY) {
+    inline void drawV(Assembler& asmblr, int offsetX, int offsetY) {
         for (int y = 0; y <= 4; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 0);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         for (int y = 0; y <= 4; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 4);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 1);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 5);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 2);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 6);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 3);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 5);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
     }
 
-    void drawM(Assembler& asmblr, int offsetX, int offsetY) {
+    inline void drawM(Assembler& asmblr, int offsetX, int offsetY) {
         for (int y = 0; y <= 6; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 0);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         for (int y = 0; y <= 6; y++) {
             asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 4);
             asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + y);
-            asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+            asmblr.drawPixel(0, 1, 2);
         }
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 1);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 1);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 2);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 2);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 3);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 1);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
 
         asmblr.emit(Opcode::LOAD_IMM, 0, offsetX + 2);
         asmblr.emit(Opcode::LOAD_IMM, 1, offsetY + 3);
-        asmblr.emit(Opcode::DRAW_PIXEL, 0, 1, 2);
+        asmblr.drawPixel(0, 1, 2);
     }
     
     inline std::vector<uint8_t> createRom() {
         Assembler asmblr;
 
         asmblr.label("start");
-        asmblr.emit(Opcode::CLEAR_SCREEN, 0);
+        asmblr.clearScreen(0);
 
-        asmblr.emit(Opcode::LOAD_IMM, 2, 4);
+        asmblr.emit(Opcode::LOAD_IMM, 2, 2);
 
         int totalWidth = (3 * 5) + (2 * 1); 
         int startX = (DISPLAY_WIDTH - totalWidth) / 2;

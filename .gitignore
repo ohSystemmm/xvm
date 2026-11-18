@@ -72,9 +72,9 @@ Testing/
 logs/
 
 # Developer-specific files
-Run.md
-Task.md
-Notes.md
+run.md
+task.md
+notes.md
 tasks.json
 
 # IDE

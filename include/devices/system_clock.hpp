@@ -5,19 +5,19 @@
 
 namespace xvm {
     class SystemClock {
-    public:
-        SystemClock();
-        ~SystemClock();
+        public:
+            SystemClock();
+            ~SystemClock();
 
-        void start();
-        void tick();
-        double getDeltaTime() const;
-        void limitFrameRate(int targetFPS);
+            void start();
+            void tick();
+            double getDeltaTime() const;
+            void limitFrameRate(int targetFPS);
 
-    private:
-        std::chrono::high_resolution_clock::time_point m_lastTime;
-        double m_deltaTime = 0.0;
-        const double m_targetFrameTime = 1.0 / 60.0; // 60 FPS limit
+        private:
+            std::chrono::high_resolution_clock::time_point m_lastTime;
+            double m_deltaTime = 0.0;
+            const double m_targetFrameTime = 1.0 / 60.0; // 60 FPS limit
     };
 }
 

@@ -1,43 +1,15 @@
 #include "devices/cpu.hpp"
-#include "devices/framebuffer.hpp"
 #include "devices/memory_map.hpp"
+#include "vm/opcode.hpp"
 
 #include <algorithm>
 #include <iterator>
 #include <spdlog/spdlog.h>
 
 namespace xvm {
-    namespace {
-        uint32_t paletteToRgba(uint8_t index) {
-            static constexpr uint32_t kPalette[16] = {
-                0xFF000000, // 0: Black
-                0xFFFFFFFF, // 1: White
-                0xFFFF3333, // 2: Red
-                0xFF33FF33, // 3: Green
-                0xFF3366FF, // 4: Blue
-                0xFFFFFF33, // 5: Yellow
-                0xFF33FFFF, // 6: Cyan
-                0xFFFF33FF, // 7: Magenta
-                0xFFFF8800, // 8: Orange
-                0xFF444444, // 9: Dark Gray
-                0xFFAAAAAA, // 10: Light Gray
-                0xFF008800, // 11: Dark Green
-                0xFF000088, // 12: Dark Blue
-                0xFF880088, // 13: Purple
-                0xFF884400, // 14: Brown
-                0xFFFF88AA  // 15: Pink
-            };
-            if (index < 16) {
-                return kPalette[index];
-            }
-            spdlog::warn("paletteToRgba: Invalid palette index {}", index);
-            return 0xFF000000; // Default Black
-        }
-    }
 
-    Cpu::Cpu(IoBus& ioBus, Framebuffer* framebuffer)
+    Cpu::Cpu(IoBus& ioBus)
         : m_ioBus(ioBus),
-          m_framebuffer(framebuffer),
           m_programCounter(memory_map::ROM_START),
           m_zeroflags(0),
           m_halted(false),
@@ -163,18 +135,9 @@ namespace xvm {
                 break;
             }
 
-            case Opcode::CLEAR_SCREEN: {
-                if (m_framebuffer) {
-                    const uint8_t colorIdx = (arg1 < 8) ? m_registers[arg1] : arg1;
-                    m_framebuffer->clear(paletteToRgba(colorIdx));
-                }
-                break;
-            }
-
-            case Opcode::DRAW_PIXEL: {
-                if (m_framebuffer && arg1 < 8 && arg2 < 8) {
-                    const uint8_t colorIdx = (arg3 < 8) ? m_registers[arg3] : arg3;
-                    m_framebuffer->setPixel(m_registers[arg1], m_registers[arg2], paletteToRgba(colorIdx));
+            case Opcode::PORT_OUT: {
+                if (arg2 < 8) {
+                    m_ioBus.writePort(arg1, m_registers[arg2]);
                 }
                 break;
             }
@@ -205,14 +168,6 @@ namespace xvm {
                 break;
             }
         }
-    }
-    
-    void Cpu::setFramebuffer(Framebuffer* framebuffer) {
-        m_framebuffer = framebuffer;
-    }
-
-    Framebuffer* Cpu::getFramebuffer() const {
-        return m_framebuffer;
     }
 
     bool Cpu::isHalted() const {

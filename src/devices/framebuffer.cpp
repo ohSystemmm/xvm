@@ -1,6 +1,9 @@
 #include "devices/framebuffer.hpp"
+#include "devices/io_ports.hpp"
+#include "render/palette.hpp"
 
 #include <algorithm>
+#include <spdlog/spdlog.h>
 
 namespace xvm {
     Framebuffer::Framebuffer(int width, int height)
@@ -37,5 +40,43 @@ namespace xvm {
 
     int Framebuffer::getHeight() const {
         return m_height;
+    }
+
+    void Framebuffer::writePort(uint8_t port, uint8_t value) {
+        switch (port) {
+            case io_ports::FB_X:
+                m_curX = value;
+                break;
+            case io_ports::FB_Y:
+                m_curY = value;
+                break;
+            case io_ports::FB_DRAW:
+                setPixel(m_curX, m_curY, paletteToRgba(value));
+                break;
+            case io_ports::FB_CLEAR:
+                clear(paletteToRgba(value));
+                break;
+            default:
+                spdlog::warn("Framebuffer::writePort: Unknown port 0x{:02X}", port);
+                break;
+        }
+    }
+
+    uint8_t Framebuffer::readPort(uint8_t port) const {
+        switch (port) {
+            case io_ports::FB_X:
+                return m_curX;
+            case io_ports::FB_Y:
+                return m_curY;
+            default:
+                spdlog::warn("Framebuffer::readPort: Unknown port 0x{:02X}", port);
+                return 0;
+        }
+    }
+
+    void Framebuffer::reset() {
+        m_curX = 0;
+        m_curY = 0;
+        clear(0xFF000000);
     }
 }

@@ -1,10 +1,15 @@
 #include "devices/io_bus.hpp"
+#include "devices/framebuffer.hpp"
+#include "devices/io_ports.hpp"
 
 #include <spdlog/spdlog.h>
 
 namespace xvm {
-    IoBus::IoBus(Ram& ram, InputDevice& inputDevice)
-        : m_ram(ram), m_inputDevice(inputDevice), m_romWriteProtected(false) {}
+    IoBus::IoBus(Ram& ram, InputDevice& inputDevice, Framebuffer* framebuffer)
+        : m_ram(ram),
+          m_inputDevice(inputDevice),
+          m_framebuffer(framebuffer),
+          m_romWriteProtected(false) {}
 
     IoBus::~IoBus() = default;
 
@@ -38,6 +43,47 @@ namespace xvm {
         }
 
         m_ram.write8(address, value);
+    }
+
+    void IoBus::writePort(std::uint8_t port, std::uint8_t value) {
+        switch (port) {
+            case io_ports::FB_X:
+            case io_ports::FB_Y:
+            case io_ports::FB_DRAW:
+            case io_ports::FB_CLEAR:
+                if (m_framebuffer) {
+                    m_framebuffer->writePort(port, value);
+                } else {
+                    spdlog::warn("IoBus::writePort: Framebuffer not attached for port 0x{:02X}", port);
+                }
+                break;
+            default:
+                spdlog::warn("IoBus::writePort: Unhandled port 0x{:02X}", port);
+                break;
+        }
+    }
+
+    std::uint8_t IoBus::readPort(std::uint8_t port) const {
+        switch (port) {
+            case io_ports::FB_X:
+            case io_ports::FB_Y:
+                if (m_framebuffer) {
+                    return m_framebuffer->readPort(port);
+                }
+                break;
+            default:
+                spdlog::warn("IoBus::readPort: Unhandled port 0x{:02X}", port);
+                break;
+        }
+        return 0;
+    }
+
+    void IoBus::setFramebuffer(Framebuffer* framebuffer) {
+        m_framebuffer = framebuffer;
+    }
+
+    Framebuffer* IoBus::getFramebuffer() const {
+        return m_framebuffer;
     }
 
     void IoBus::setRomWriteProtected(bool protectedRom) {

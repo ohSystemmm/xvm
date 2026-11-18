@@ -2,6 +2,8 @@
 #define XVM_ASSEMBLER_HPP
 
 #include "devices/cpu.hpp"
+#include "devices/io_ports.hpp"
+#include "vm/opcode.hpp"
 
 #include <cstdint>
 #include <string>
@@ -23,8 +25,19 @@ namespace xvm {
                 m_instructions.push_back({op, 0, 0, 0, targetLabel});
             }
 
-            // Will be replaced with PORT_OUT instruction for more general output handling soon.
-            // void drawPixel() {} 
+            void portOut(uint8_t port, uint8_t reg) {
+                emit(Opcode::PORT_OUT, port, reg, 0);
+            }
+
+            void drawPixel(uint8_t regX = 0, uint8_t regY = 1, uint8_t regColor = 2) {
+                portOut(io_ports::FB_X, regX);
+                portOut(io_ports::FB_Y, regY);
+                portOut(io_ports::FB_DRAW, regColor);
+            }
+
+            void clearScreen(uint8_t regColor = 0) {
+                portOut(io_ports::FB_CLEAR, regColor);
+            } 
 
             std::vector<uint8_t> assemble() const {
                 std::vector<uint8_t> bytes;
@@ -57,7 +70,7 @@ namespace xvm {
             };
             std::vector<Item> m_instructions;
             std::unordered_map<std::string, uint16_t> m_labels;
-        };
+    };
 }
 
 #endif
