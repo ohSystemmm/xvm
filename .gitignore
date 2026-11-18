@@ -74,6 +74,7 @@ logs/
 # Developer-specific files
 run.md
 task.md
+todo.md
 notes.md
 tasks.json
 
