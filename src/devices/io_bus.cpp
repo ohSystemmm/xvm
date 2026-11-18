@@ -33,8 +33,7 @@ namespace xvm {
         }
 
         if (address == memory_map::IO_INPUT) {
-            // IO_INPUT is read-only (input register)
-            return;
+            return; // IO_INPUT is read-only (input register)
         }
 
         if (m_romWriteProtected && memory_map::isRom(address)) {
@@ -47,19 +46,28 @@ namespace xvm {
 
     void IoBus::writePort(std::uint8_t port, std::uint8_t value) {
         switch (port) {
-            case io_ports::FB_X:
-            case io_ports::FB_Y:
-            case io_ports::FB_DRAW:
-            case io_ports::FB_CLEAR:
+            case io_ports::FB_X: {
+            }
+
+            case io_ports::FB_Y:{
+            }
+
+            case io_ports::FB_DRAW: {
+            }
+
+            case io_ports::FB_CLEAR: {
                 if (m_framebuffer) {
-                    m_framebuffer->writePort(port, value);
+                    m_framebuffer -> writePort(port, value);
                 } else {
                     spdlog::warn("IoBus::writePort: Framebuffer not attached for port 0x{:02X}", port);
                 }
                 break;
-            default:
+            }
+
+            default: {
                 spdlog::warn("IoBus::writePort: Unhandled port 0x{:02X}", port);
                 break;
+            }
         }
     }
 

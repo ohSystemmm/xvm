@@ -17,6 +17,7 @@ namespace xvm {
         JUMP_ZERO     = 0x09,
         JUMP_NOT_ZERO = 0x0A,
         PORT_OUT      = 0x0B,
+        // Placeholder = 0x0C,
         HALT          = 0x0D,
         AND           = 0x0E,
         OR            = 0x0F

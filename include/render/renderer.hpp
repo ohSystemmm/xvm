@@ -20,10 +20,10 @@ namespace xvm {
             void present();
             void render(const Framebuffer& framebuffer);
 
-            [[nodiscard]] SDL_Window*   getWindow()   const { return m_window; }
+            [[nodiscard]] SDL_Window*   getWindow()      const { return m_window; }
             [[nodiscard]] SDL_Renderer* getSDLRenderer() const { return m_renderer; }
-            [[nodiscard]] int           getWidth()    const { return m_width; }
-            [[nodiscard]] int           getHeight()   const { return m_height; }
+            [[nodiscard]] int           getWidth()       const { return m_width; }
+            [[nodiscard]] int           getHeight()      const { return m_height; }
 
         private:
             SDL_Window*   m_window    = nullptr;

@@ -22,8 +22,7 @@ namespace xvm {
                 std::filesystem::create_directories(logPath.parent_path());
             }
 
-            // 5 MB max size, 3 rotated files
-            constexpr std::size_t maxSize  = 5 * 1024 * 1024;
+            constexpr std::size_t maxSize  = 5 * 1024 * 1024; // 5 MB max size, 3 rotated files
             constexpr std::size_t maxFiles = 3;
             auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logFile, maxSize, maxFiles);
             fileSink->set_level(spdlog::level::trace);

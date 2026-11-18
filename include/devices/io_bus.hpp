@@ -3,7 +3,6 @@
 
 #include "ram.hpp"
 #include "input_device.hpp"
-#include "memory_map.hpp"
 
 #include <cstdint>
 

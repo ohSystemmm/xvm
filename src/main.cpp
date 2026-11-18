@@ -47,31 +47,54 @@ int main(int argc, char* argv[]) {
             } else if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
                 const bool pressed = (event.type == SDL_EVENT_KEY_DOWN);
                 switch (event.key.key) {
-                    case SDLK_UP:
-                    case SDLK_W:
+                    case SDLK_UP: {
+                    }
+
+                    case SDLK_W: {
                         vm.setButtonState(xvm::buttons::UP, pressed);
                         break;
-                    case SDLK_DOWN:
-                    case SDLK_S:
+                    }
+
+                    case SDLK_DOWN: {
+                    }
+
+                    case SDLK_S: {
                         vm.setButtonState(xvm::buttons::DOWN, pressed);
                         break;
-                    case SDLK_LEFT:
-                    case SDLK_A:
+                    }
+
+                    case SDLK_LEFT: {
+                    }
+
+                    case SDLK_A: {
                         vm.setButtonState(xvm::buttons::LEFT, pressed);
                         break;
-                    case SDLK_RIGHT:
-                    case SDLK_D:
+                    }
+
+                    case SDLK_RIGHT: {
+                    }
+
+                    case SDLK_D: {
                         vm.setButtonState(xvm::buttons::RIGHT, pressed);
                         break;
-                    case SDLK_SPACE:
-                    case SDLK_RETURN:
+                    }
+
+                    case SDLK_SPACE: {
+                    }
+
+                    case SDLK_RETURN: {
                         vm.setButtonState(xvm::buttons::ACTION, pressed);
                         break;
-                    case SDLK_ESCAPE:
+                    }
+
+                    case SDLK_ESCAPE: {
                         running = false;
                         break;
-                    default:
+                    }
+
+                    default: {
                         break;
+                    }
                 }
             }
         }

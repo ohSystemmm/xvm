@@ -71,11 +71,8 @@ namespace xvm {
         }
 
         reset();
-
-        m_ram.write(memory_map::ROM_START, romData); // write ROM to start of RAM
-
-        m_ioBus.setRomWriteProtected(true); // disable runtime writes
-
+        m_ram.write(memory_map::ROM_START, romData);    // write ROM to start of RAM
+        m_ioBus.setRomWriteProtected(true);             // disable runtime writes
         m_cpu.setProgramCounter(memory_map::ROM_START); // reset CPU to start of ROM
         m_cpu.setHalted(false);
 

@@ -44,33 +44,47 @@ namespace xvm {
 
     void Framebuffer::writePort(uint8_t port, uint8_t value) {
         switch (port) {
-            case io_ports::FB_X:
+            case io_ports::FB_X: {
                 m_curX = value;
                 break;
-            case io_ports::FB_Y:
+            }
+
+            case io_ports::FB_Y: {
                 m_curY = value;
                 break;
-            case io_ports::FB_DRAW:
+            }
+
+            case io_ports::FB_DRAW: {
                 setPixel(m_curX, m_curY, paletteToRgba(value));
                 break;
-            case io_ports::FB_CLEAR:
+            }
+
+            case io_ports::FB_CLEAR: {
                 clear(paletteToRgba(value));
                 break;
-            default:
+            }
+
+            default: {
                 spdlog::warn("Framebuffer::writePort: Unknown port 0x{:02X}", port);
                 break;
+            }
         }
     }
 
     uint8_t Framebuffer::readPort(uint8_t port) const {
         switch (port) {
-            case io_ports::FB_X:
+            case io_ports::FB_X: {
                 return m_curX;
-            case io_ports::FB_Y:
+            }
+
+            case io_ports::FB_Y: {
                 return m_curY;
-            default:
+            }
+
+            default: {
                 spdlog::warn("Framebuffer::readPort: Unknown port 0x{:02X}", port);
                 return 0;
+            }
         }
     }
 

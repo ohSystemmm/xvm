@@ -130,7 +130,6 @@ namespace xvm {
         }
 
         SDL_UpdateTexture(m_texture, nullptr, framebuffer.getBuffer(), fbW * sizeof(uint32_t));
-
         SDL_SetRenderDrawColor(m_renderer, 16, 16, 16, 255);
         SDL_RenderClear(m_renderer);
 
