@@ -1,10 +1,11 @@
 #ifndef XVM_IO_BUS_HPP
 #define XVM_IO_BUS_HPP
 
-#include <cstdint>
 #include "ram.hpp"
 #include "input_device.hpp"
 #include "memory_map.hpp"
+
+#include <cstdint>
 
 namespace xvm {
     class IoBus {

@@ -2,6 +2,7 @@
 #define XVM_CPU_HPP
 
 #include "devices/io_bus.hpp"
+
 #include <cstddef>
 #include <cstdint>
 
