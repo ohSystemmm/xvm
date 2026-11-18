@@ -2,6 +2,7 @@
 #define XVM_DEMO_ROM_HPP
 
 #include "assembler.hpp"
+
 #include <vector>
 #include <cstdint>
 
@@ -111,7 +112,7 @@ namespace xvm {
         asmblr.label("start");
         asmblr.emit(Opcode::CLEAR_SCREEN, 0);
 
-        asmblr.emit(Opcode::LOAD_IMM, 2, 4);
+        asmblr.emit(Opcode::LOAD_IMM, 2, 2);
 
         int totalWidth = (3 * 5) + (2 * 1); 
         int startX = (DISPLAY_WIDTH - totalWidth) / 2;

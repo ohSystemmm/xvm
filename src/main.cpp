@@ -3,6 +3,7 @@
 #include "vm/assembler.hpp"
 #include "vm/virtual_machine.hpp"
 #include "vm/rom.hpp"
+#include "devices/input_codes.hpp"
 
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -22,9 +23,8 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     } else {
-        // Load demo ROM
-        auto demoRom = xvm::createRom();
-        if (!vm.loadRom(demoRom)) {
+        auto rom = xvm::createRom();
+        if (!vm.loadRom(rom)) {
             std::cerr << "Failed to load built-in demo ROM" << std::endl;
             return 1;
         }
@@ -78,13 +78,8 @@ int main(int argc, char* argv[]) {
 
         clock.tick();
 
-        // Run batch of virtual CPU instructions per frame (500 instructions per frame)
-        vm.runFrame(500);
-
-        // Render virtual framebuffer to window
-        renderer.render(vm.getFramebuffer());
-
-        // Lock frame rate to 60 FPS
+        vm.runFrame(500);                       // (500 cpu instructions per frame)
+        renderer.render(vm.getFramebuffer());   // Render virtual framebuffer
         clock.limitFrameRate(60);
     }
 

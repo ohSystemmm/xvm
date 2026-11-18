@@ -61,7 +61,7 @@ namespace xvm {
             Framebuffer m_framebuffer;
             Cpu m_cpu;
             SystemClock m_clock;
-        };
+    };
 }
 
 #endif

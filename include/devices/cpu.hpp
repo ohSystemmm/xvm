@@ -7,26 +7,7 @@
 
 namespace xvm {
     class Framebuffer;
-
-    enum class Opcode : uint8_t {
-        NOP           = 0x00,
-        LOAD_IMM      = 0x01,
-        LOAD_MEM      = 0x02,
-        STORE_MEM     = 0x03,
-        COPY_REG      = 0x04,
-        ADD           = 0x05,
-        SUB           = 0x06,
-        CMP           = 0x07,
-        JUMP          = 0x08,
-        JUMP_ZERO     = 0x09,
-        JUMP_NOT_ZERO = 0x0A,
-        CLEAR_SCREEN  = 0x0B, // Replace with generalized instruction (e.g., PORT_OUT to framebuffer)
-        DRAW_PIXEL    = 0x0C, // Replace with generalized instruction (e.g., PORT_OUT to framebuffer)
-        HALT          = 0x0D,
-        AND           = 0x0E,
-        OR            = 0x0F
-    };
-
+    
     class Cpu {
         public:
             explicit Cpu(IoBus& ioBus, Framebuffer* framebuffer = nullptr);
@@ -57,12 +38,12 @@ namespace xvm {
             IoBus& m_ioBus;
             Framebuffer* m_framebuffer = nullptr;
 
-            uint8_t m_registers[8]{};     // General purpose registers R0 - R7
-            uint16_t m_programCounter = 0;// 16-bit program counter
-            uint8_t m_zeroflags = 0;      // Zero flag (0 or 1)
+            uint8_t m_registers[8]{};      // General purpose registers R0 - R7
+            uint16_t m_programCounter = 0; // 16-bit program counter
+            uint8_t m_zeroflags = 0;       // Zero flag (0 or 1)
             bool m_halted = false;
             bool m_trace = false;
-        };
+    };
 }
 
 #endif

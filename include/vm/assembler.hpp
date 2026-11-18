@@ -2,6 +2,7 @@
 #define XVM_ASSEMBLER_HPP
 
 #include "devices/cpu.hpp"
+#include "vm/opcode.hpp"
 
 #include <cstdint>
 #include <string>
@@ -57,7 +58,7 @@ namespace xvm {
             };
             std::vector<Item> m_instructions;
             std::unordered_map<std::string, uint16_t> m_labels;
-        };
+    };
 }
 
 #endif

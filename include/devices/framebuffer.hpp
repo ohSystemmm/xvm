@@ -25,7 +25,7 @@ namespace xvm {
             int m_width;
             int m_height;
             std::vector<uint32_t> m_pixels;
-        };
+    };
 }
 
 #endif

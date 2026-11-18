@@ -22,7 +22,7 @@ namespace xvm {
             Ram& m_ram;
             InputDevice& m_inputDevice;
             bool m_romWriteProtected = false;
-        };
+    };
 }
 
 #endif
