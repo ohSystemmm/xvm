@@ -12,14 +12,25 @@ CMAKE_MAKE_PROGRAM = $(MAKE)
 #   make run LOG_MODE=file     -> stdout + file logging (logs/xvm.log)
 LOG_MODE = stdout
 
+# ROM configuration: source assembly file, output binary, and run parameters.
+#   make rom							-> assemble $(ROM_SRC) into $(ROM_BIN)
+#   make run							-> run VM loading $(ROM)
+#   make run ROM=rom/bin/example.bin	-> run with specified ROM binary
+#   make run PARAMS=...					-> pass custom parameters to executable
+ROM_DIR = rom
+ROM_SRC = $(ROM_DIR)/asm/rom.asm
+ROM_BIN = $(ROM_DIR)/bin/rom.bin
+ROM = $(ROM_BIN)
+PARAMS = $(ROM)
+
 VCPKG_TARGET_TRIPLET = x64-mingw-dynamic
 VCPKG_HOST_TRIPLET = $(VCPKG_TARGET_TRIPLET)
 
 ifeq ($(strip $(VCPKG_ROOT)),)
   ifneq ($(wildcard ../vcpkg/vcpkg.exe),)
     VCPKG_ROOT := $(abspath ../vcpkg)
-  else ifneq ($(wildcard C:/Users/leonh/HolyMoly/003_Work/Work/Projects/vcpkg/vcpkg.exe),)
-    VCPKG_ROOT := C:/Users/leonh/HolyMoly/003_Work/Work/Projects/vcpkg
+  else ifneq ($(wildcard ../../vcpkg/vcpkg.exe),)
+    VCPKG_ROOT := $(abspath ../../vcpkg)
   endif
 endif
 
@@ -50,7 +61,7 @@ CMAKE_LOG_FLAG = -DXVM_LOG_TO_FILE=OFF
 endif
 
 .DEFAULT_GOAL := build
-.PHONY: all configure build run debug release clean info help
+.PHONY: all configure build run rom roms debug release clean info help
 
 all: build
 
@@ -68,8 +79,16 @@ configure:
 build: configure
 	"$(CMAKE)" --build "$(BUILD_DIR)" --config $(CMAKE_CONFIG)
 
-run: build
-	"$(BUILD_DIR)/$(PROJECT_NAME).exe"
+run: build rom
+	"$(BUILD_DIR)/$(PROJECT_NAME).exe" $(PARAMS)
+
+# ROM generation target: compiles $(ROM_SRC) into $(ROM_BIN) using xvm-asm
+rom: configure
+	"$(CMAKE)" --build "$(BUILD_DIR)" --target xvm-asm --config $(CMAKE_CONFIG)
+	@"$(CMAKE)" -E make_directory "$(ROM_DIR)"
+	"$(BUILD_DIR)/xvm-asm.exe" "$(ROM_SRC)" -o "$(ROM_BIN)"
+
+roms: rom
 
 debug:
 	$(MAKE) CONFIG=debug build
@@ -91,11 +110,16 @@ info:
 	@echo Host Triplet:   $(VCPKG_HOST_TRIPLET)
 	@echo vcpkg root:     $(VCPKG_ROOT)
 	@echo Log mode:       $(LOG_MODE)
+	@echo ROM directory:  $(ROM_DIR)
+	@echo ROM source:     $(ROM_SRC)
+	@echo ROM binary:     $(ROM_BIN)
+	@echo ROM file:       $(ROM)
 
 help:
 	@echo "xvm build targets:"
 	@echo "  build            Configure with vcpkg and build (default: debug)"
-	@echo "  run              Build and run the selected configuration"
+	@echo "  run              Build, generate ROM, and run the selected configuration"
+	@echo "  rom              Assemble $(ROM_SRC) into $(ROM_BIN)"
 	@echo "  debug            Build with debug settings"
 	@echo "  release          Build optimized release output"
 	@echo "  clean            Remove generated build directories"
@@ -104,4 +128,5 @@ help:
 	@echo
 	@echo "Variables: CXX, CONFIG=debug|release, BUILD_ROOT, CMAKE,"
 	@echo "           VCPKG_ROOT, VCPKG_TARGET_TRIPLET, VCPKG_HOST_TRIPLET,"
-	@echo "           VCPKG_OVERLAY_TRIPLETS, LOG_MODE=stdout|file"
+	@echo "           VCPKG_OVERLAY_TRIPLETS, LOG_MODE=stdout|file,"
+	@echo "           ROM=<path>, PARAMS=<args>"

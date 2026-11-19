@@ -1,6 +1,7 @@
 #include "devices/io_bus.hpp"
 #include "devices/framebuffer.hpp"
 #include "devices/io_ports.hpp"
+#include "devices/memory_map.hpp"
 
 #include <spdlog/spdlog.h>
 
