@@ -45,9 +45,6 @@ build/
 Build/
 build-*/
 
-# Project generated files
-rom/
-
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt
