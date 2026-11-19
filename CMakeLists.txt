@@ -28,6 +28,12 @@ target_include_directories(xvm PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 target_link_libraries(xvm PRIVATE SDL3::SDL3 SDL3_image::SDL3_image spdlog::spdlog)
 
+add_executable(xvm-asm
+    src/tools/assembler.cpp
+)
+target_include_directories(xvm-asm PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(xvm-asm PRIVATE spdlog::spdlog)
+
 # Logging mode: pass -DLOG_TO_FILE from the Makefile / CLI to enable file
 # logging in addition to stdout.  When the option is OFF (the default),
 # only stdout logging is active.

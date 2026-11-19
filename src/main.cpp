@@ -1,33 +1,32 @@
 #include "log/logger.hpp"
 #include "render/renderer.hpp"
-#include "vm/assembler.hpp"
 #include "vm/virtual_machine.hpp"
-#include "vm/rom.hpp"
 #include "devices/input_codes.hpp"
 
 #include <SDL3/SDL.h>
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <string>
 
 int main(int argc, char* argv[]) {
-    std::cout << "Starting XVM Virtual Machine..." << std::endl;
-
     xvm::initLogger();
+    spdlog::info("Starting XVM Virtual Machine...");
 
     xvm::VirtualMachine vm;
 
+    std::string romPath;
     if (argc > 1) {
-        const std::string romPath = argv[1];
-        if (!vm.loadRom(romPath)) {
-            std::cerr << "Failed to load ROM: " << romPath << std::endl;
-            return 1;
-        }
+        romPath = argv[1];
     } else {
-        auto rom = xvm::createRom();
-        if (!vm.loadRom(rom)) {
-            std::cerr << "Failed to load built-in demo ROM" << std::endl;
-            return 1;
+        romPath = "rom/bin/rom.bin";
+        spdlog::info("No ROM specified, attempting to load default: {}", romPath);
+    }
+
+    if (!vm.loadRom(romPath)) {
+        spdlog::error("Failed to load ROM: {}", romPath);
+        if (argc <= 1) {
+            spdlog::info("Usage: {} <path_to_rom.bin>", argv[0]);
         }
+        return 1;
     }
 
     xvm::Renderer renderer;
