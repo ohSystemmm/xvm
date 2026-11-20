@@ -12,16 +12,17 @@ CMAKE_MAKE_PROGRAM = $(MAKE)
 #   make run LOG_MODE=file     -> stdout + file logging (logs/xvm.log)
 LOG_MODE = stdout
 
-# ROM configuration: source assembly file, output binary, and run parameters.
-#   make rom							-> assemble $(ROM_SRC) into $(ROM_BIN)
-#   make run							-> run VM loading $(ROM)
-#   make run ROM=rom/bin/example.bin	-> run with specified ROM binary
-#   make run PARAMS=...					-> pass custom parameters to executable
+# ROM configuration:
+#   make rom [source.asm]                 -> assemble a source into $(ROM_OUT)
+#   make rom source.asm ROM_OUT=out.bin   -> choose a custom output path
+#   make run [rom.bin]                    -> run a compiled ROM
 ROM_DIR = rom
-ROM_SRC = $(ROM_DIR)/asm/rom.asm
+ROM_SRC = $(if $(and $(filter rom,$(firstword $(MAKECMDGOALS))),$(word 2,$(MAKECMDGOALS))),$(word 2,$(MAKECMDGOALS)),$(ROM_DIR)/asm/rom.asm)
 ROM_BIN = $(ROM_DIR)/bin/rom.bin
+ROM_OUT ?= $(ROM_BIN)
 ROM = $(ROM_BIN)
-PARAMS = $(ROM)
+RUN_ROM = $(if $(and $(filter run,$(firstword $(MAKECMDGOALS))),$(word 2,$(MAKECMDGOALS))),$(word 2,$(MAKECMDGOALS)),$(ROM))
+EXTRA_GOALS = $(if $(filter rom run,$(firstword $(MAKECMDGOALS))),$(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 
 VCPKG_TARGET_TRIPLET = x64-mingw-dynamic
 VCPKG_HOST_TRIPLET = $(VCPKG_TARGET_TRIPLET)
@@ -62,6 +63,9 @@ endif
 
 .DEFAULT_GOAL := build
 .PHONY: all configure build run rom roms debug release clean info help
+.PHONY: $(EXTRA_GOALS)
+
+$(EXTRA_GOALS):
 
 all: build
 
@@ -79,14 +83,20 @@ configure:
 build: configure
 	"$(CMAKE)" --build "$(BUILD_DIR)" --config $(CMAKE_CONFIG)
 
-run: build rom
-	"$(BUILD_DIR)/$(PROJECT_NAME).exe" $(PARAMS)
+ifeq ($(wildcard $(RUN_ROM)),)
+run:
+	@echo "Error: ROM not found: $(RUN_ROM)"
+	@exit 1
+else
+run: build
+	"$(BUILD_DIR)/$(PROJECT_NAME).exe" "$(RUN_ROM)"
+endif
 
-# ROM generation target: compiles $(ROM_SRC) into $(ROM_BIN) using xvm-asm
+# ROM generation target: compiles $(ROM_SRC) into $(ROM_OUT) using xvm-asm
 rom: configure
 	"$(CMAKE)" --build "$(BUILD_DIR)" --target xvm-asm --config $(CMAKE_CONFIG)
-	@"$(CMAKE)" -E make_directory "$(ROM_DIR)"
-	"$(BUILD_DIR)/xvm-asm.exe" "$(ROM_SRC)" -o "$(ROM_BIN)"
+	@"$(CMAKE)" -E make_directory "$(dir $(ROM_OUT))"
+	"$(BUILD_DIR)/xvm-asm.exe" "$(ROM_SRC)" -o "$(ROM_OUT)"
 
 roms: rom
 
@@ -113,20 +123,20 @@ info:
 	@echo ROM directory:  $(ROM_DIR)
 	@echo ROM source:     $(ROM_SRC)
 	@echo ROM binary:     $(ROM_BIN)
-	@echo ROM file:       $(ROM)
+	@echo ROM file:       $(RUN_ROM)
 
 help:
 	@echo "xvm build targets:"
-	@echo "  build            Configure with vcpkg and build (default: debug)"
-	@echo "  run              Build, generate ROM, and run the selected configuration"
-	@echo "  rom              Assemble $(ROM_SRC) into $(ROM_BIN)"
-	@echo "  debug            Build with debug settings"
-	@echo "  release          Build optimized release output"
-	@echo "  clean            Remove generated build directories"
-	@echo "  info             Show the active build configuration"
-	@echo "  help             Show available build targets"
+	@echo "  build             Configure with vcpkg and build (default: debug)"
+	@echo "  run [rom.bin]     Build and run a compiled ROM (default: $(ROM_BIN))"
+	@echo "  rom [source.asm]  Assemble a source (default: $(ROM_DIR)/asm/rom.asm)"
+	@echo "  debug             Build with debug settings"
+	@echo "  release           Build optimized release output"
+	@echo "  clean             Remove generated build directories"
+	@echo "  info              Show the active build configuration"
+	@echo "  help              Show available build targets"
 	@echo
 	@echo "Variables: CXX, CONFIG=debug|release, BUILD_ROOT, CMAKE,"
 	@echo "           VCPKG_ROOT, VCPKG_TARGET_TRIPLET, VCPKG_HOST_TRIPLET,"
 	@echo "           VCPKG_OVERLAY_TRIPLETS, LOG_MODE=stdout|file,"
-	@echo "           ROM=<path>, PARAMS=<args>"
+	@echo "           ROM_OUT=<path> (optional output for rom)"
