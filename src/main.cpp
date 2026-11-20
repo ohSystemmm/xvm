@@ -99,8 +99,8 @@ int main(int argc, char* argv[]) {
         }
 
         clock.tick();
-
-        vm.runFrame(500);                       // (500 cpu instructions per frame)
+        
+        vm.runFrame(50);                        // (50 cpu instructions per frame)
         renderer.render(vm.getFramebuffer());   // Render virtual framebuffer
         clock.limitFrameRate(60);
     }

@@ -95,7 +95,8 @@ namespace xvm {
 
     void Renderer::clear() {
         if (m_renderer) {
-            SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+
+            SDL_SetRenderDrawColorFloat(m_renderer, 0, 0, 0, 255);
             SDL_RenderClear(m_renderer);
         }
     }

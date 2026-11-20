@@ -35,16 +35,6 @@ namespace xvm {
                 emit(Opcode::PORT_OUT, port, reg, 0);
             }
 
-            void drawPixel(uint8_t regX = 0, uint8_t regY = 1, uint8_t regColor = 2) {
-                portOut(io_ports::FB_X, regX);
-                portOut(io_ports::FB_Y, regY);
-                portOut(io_ports::FB_DRAW, regColor);
-            }
-
-            void clearScreen(uint8_t regColor = 0) {
-                portOut(io_ports::FB_CLEAR, regColor);
-            } 
-
             std::vector<uint8_t> assemble() const {
                 std::vector<uint8_t> bytes;
                 bytes.reserve(m_instructions.size() * 4);
@@ -489,58 +479,6 @@ namespace xvm {
                     }
 
                     emit(Opcode::OR, rA, rB);
-                } 
-                
-                else if (mnemonic == "DRAW_PIXEL") {
-                    uint8_t rx = 0;
-                    uint8_t ry = 1;
-                    uint8_t rc = 2;
-
-                    if (tokens.size() > 1) {
-                        if (!parseRegister(tokens[1], rx)) {
-                            if (errorMsg != nullptr) {
-                                *errorMsg = "Line " + std::to_string(lineNum) + ": invalid register X for DRAW_PIXEL";
-                            }
-                            spdlog::error("Line {}: invalid register X for DRAW_PIXEL", lineNum);
-                            return false;
-                        }
-                    }
-
-                    if (tokens.size() > 2) {
-                        if (!parseRegister(tokens[2], ry)) {
-                            if (errorMsg != nullptr) {
-                                *errorMsg = "Line " + std::to_string(lineNum) + ": invalid register Y for DRAW_PIXEL";
-                            }
-                            spdlog::error("Line {}: invalid register Y for DRAW_PIXEL", lineNum);
-                            return false;
-                        }
-                    }
-
-                    if (tokens.size() > 3) {
-                        if (!parseRegister(tokens[3], rc)) {
-                            if (errorMsg != nullptr) {
-                                *errorMsg = "Line " + std::to_string(lineNum) + ": invalid color register for DRAW_PIXEL";
-                            }
-                            spdlog::error("Line {}: invalid color register for DRAW_PIXEL", lineNum);
-                            return false;
-                        }
-                    }
-
-                    drawPixel(rx, ry, rc);
-                } 
-                
-                else if (mnemonic == "CLEAR_SCREEN") {
-                    uint8_t rc = 0;
-                    if (tokens.size() > 1) {
-                        if (!parseRegister(tokens[1], rc)) {
-                            if (errorMsg != nullptr) {
-                                *errorMsg = "Line " + std::to_string(lineNum) + ": invalid color register for CLEAR_SCREEN";
-                            }
-                            spdlog::error("Line {}: invalid color register for CLEAR_SCREEN", lineNum);
-                            return false;
-                        }
-                    }
-                    clearScreen(rc);
                 } else {
                     if (errorMsg != nullptr) {
                         *errorMsg = "Line " + std::to_string(lineNum) + ": unknown instruction '" + tokens[0] + "'";
