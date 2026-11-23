@@ -34,7 +34,7 @@ ROM, then run it:
 # Generate ROM
 make rom/asm/rom.asm ROM_OUT=rom/bin/rom.bin
 
-# Run xvm using default ROM
+# Run xvm using generated ROM
 make run rom/bin/rom.bin
 ```
 
