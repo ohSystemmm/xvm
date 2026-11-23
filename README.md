@@ -56,5 +56,6 @@ build/debug/xvm-asm.exe rom/asm/rom.asm -o rom/bin/rom.bin
 
 If no input file is provided, it defaults to `rom/asm/rom.asm`; if `-o` is
 omitted, output defaults to `rom/bin/rom.bin`. Instructions are fixed-width
-four-byte encodings. For available operations, operands, and device ports,
-refer to the [ISA](docs/ISA.md) and [memory map](docs/MMU.md).
+four-byte encodings.  
+
+For available operations, operands, and device ports, refer to the [ISA](docs/ISA.md) and [memory map](docs/MMU.md).
