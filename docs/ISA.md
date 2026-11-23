@@ -11,7 +11,8 @@
 | Instruction size                     | Fixed 4 bytes                       |
 | Address operand byte order           | High byte first, then low byte      |
 | General-purpose register reset value | Zero                                |
-| Reset PC                             | `0x0000`                            |
+| Reset PC                             | `0x0000`                            | 
+
 Registers have no dedicated stack-pointer, link-register, or address-register
 role. There is no stack, interrupt mechanism, or 16-bit arithmetic instruction
 in the current ISA.
